@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+require "thor"
+require "colored"
+require File.expand_path('../lib/banjo', File.dirname(__FILE__))
+
+class Banjo < Thor
+  desc "new APP_NAME", "create app directory called NAME"
+  def new(name)
+    puts "> Creating #{name.magenta}...".bold
+    BanjoCLI.generate_app(name).clear
+    puts "> Running #{"crystal deps".cyan}".bold
+    BanjoCLI.deps(name)
+    puts "> Created app #{name.magenta}!".bold
+  end
+  
+  desc "server", "starts app server"
+  def server
+    ENV["PORT"] ||= "3000"
+    BanjoCLI.server
+  end
+  
+  desc "generate controller NAME", "generates a scaffold controller file in app/controllers/*"
+  def generate(type, name, *actions)
+    generator = BanjoCLI::Generator.new(type.to_sym)
+    generator.generate(name, actions.map { |a| a })
+  end
+end
+
+Banjo.start
